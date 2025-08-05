@@ -1,0 +1,46 @@
+contracts/BaseBuilder.sol  // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+/**
+ * @title BaseBuilder
+ * @dev Smart contract for Base Builder Rewards tracking
+ * @author Base Builder Rewards Team
+ */
+contract BaseBuilder {
+    uint256 public buildCount;
+    address public owner;
+    mapping(address => uint256) public builderCounts;
+    
+    event Built(address indexed builder, uint256 newCount);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    
+    constructor() {
+        owner = msg.sender;
+        buildCount = 0;
+    }
+    
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
+    }
+    
+    function build() external {
+        buildCount++;
+        builderCounts[msg.sender]++;
+        emit Built(msg.sender, buildCount);
+    }
+    
+    function getBuildCount() external view returns (uint256) {
+        return buildCount;
+    }
+    
+    function getBuilderCount(address builder) external view returns (uint256) {
+        return builderCounts[builder];
+    }
+    
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "New owner is the zero address");
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+    }
+}
